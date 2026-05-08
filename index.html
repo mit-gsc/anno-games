@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Puzzle Game</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    .hidden { display: none; }
+    input { padding: 8px; width: 100%; margin-bottom: 10px; }
+    button { padding: 10px; width: 100%; margin-bottom: 10px; }
+    #leaderboard li { margin: 4px 0; }
+  </style>
+</head>
+<body>
+
+<h2>Puzzle Game</h2>
+
+<div id="auth-section">
+  <h3>Login</h3>
+  <input id="login-email" placeholder="Email">
+  <input id="login-password" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+
+  <h3>Register</h3>
+  <input id="reg-email" placeholder="Email">
+  <input id="reg-password" type="password" placeholder="Password">
+  <button onclick="registerUser()">Register</button>
+
+  <p id="auth-message"></p>
+</div>
+
+<div id="game-section" class="hidden">
+  <h3>Welcome, <span id="user-email"></span></h3>
+
+  <h4>Puzzle</h4>
+  <p>Enter the correct answer (placeholder puzzle):</p>
+  <input id="puzzle-answer" placeholder="Your answer">
+  <button onclick="submitPuzzle()">Submit Answer</button>
+  <p id="puzzle-message"></p>
+
+  <h4>Leaderboard</h4>
+  <ul id="leaderboard"></ul>
+
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+const API_URL = "YOUR_WEB_APP_URL_HERE";
+
+// Save session locally
+function saveSession(email, token) {
+  localStorage.setItem("email", email);
+  localStorage.setItem("token", token);
+}
+
+// Load session
+function loadSession() {
+  const email = localStorage.getItem("email");
+  const token = localStorage.getItem("token");
+  if (email && token) {
+    document.getElementById("auth-section").classList.add("hidden");
+    document.getElementById("game-section").classList.remove("hidden");
+    document.getElementById("user-email").innerText = email;
+    loadLeaderboard();
+  }
+}
+loadSession();
+
+// Register
+async function registerUser() {
+  const email = document.getElementById("reg-email").value;
+  const password = document.getElementById("reg-password").value;
+
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "register", email, password })
+  });
+  const data = await res.json();
+
+  document.getElementById("auth-message").innerText = data.success
+    ? "Registration successful. You can now log in."
+    : data.error;
+}
+
+// Login
+async function login() {
+  const email = document.getElementById("login-email").value;
+  const password = document.getElementById("login-password").value;
+
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "login", email, password })
+  });
+  const data = await res.json();
+
+  if (data.success) {
+    saveSession(data.email, data.token);
+    document.getElementById("auth-section").classList.add("hidden");
+    document.getElementById("game-section").classList.remove("hidden");
+    document.getElementById("user-email").innerText = data.email;
+    loadLeaderboard();
+  } else {
+    document.getElementById("auth-message").innerText = data.error;
+  }
+}
+
+// Submit puzzle
+async function submitPuzzle() {
+  const answer = document.getElementById("puzzle-answer").value;
+  const email = localStorage.getItem("email");
+  const token = localStorage.getItem("token");
+
+  if (answer !== "1") {
+    document.getElementById("puzzle-message").innerText = "Incorrect!";
+    return;
+  }
+
+  const score = Math.floor(Math.random() * 1000);
+
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "saveScore",
+      email,
+      token,
+      score,
+      puzzleId: "puzzle1"
+    })
+  });
+
+  const data = await res.json();
+  document.getElementById("puzzle-message").innerText = data.success
+    ? "Correct! Score saved."
+    : data.error;
+
+  loadLeaderboard();
+}
+
+// Load leaderboard
+async function loadLeaderboard() {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "leaderboard" })
+  });
+  const data = await res.json();
+
+  const list = document.getElementById("leaderboard");
+  list.innerHTML = "";
+
+  if (data.success) {
+    data.leaderboard.forEach(entry => {
+      const li = document.createElement("li");
+      li.textContent = `${entry.email}: ${entry.bestScore}`;
+      list.appendChild(li);
+    });
+  }
+}
+
+// Logout
+function logout() {
+  localStorage.clear();
+  location.reload();
+}
+</script>
+
+</body>
+</html>
