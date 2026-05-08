@@ -51,6 +51,29 @@
 </div>
 
 <script>
+function loadPuzzle() {
+  const puzzleId = document.getElementById("puzzle-select").value;
+
+  // Example puzzles — replace with your real puzzles
+  if (puzzleId === "puzzle1") {
+    document.getElementById("puzzle-message").innerText = "";
+    document.getElementById("puzzle-answer").value = "";
+    document.getElementById("puzzle-description").innerText = "Puzzle 1: What is 1+0?";
+  }
+
+  if (puzzleId === "puzzle2") {
+    document.getElementById("puzzle-message").innerText = "";
+    document.getElementById("puzzle-answer").value = "";
+    document.getElementById("puzzle-description").innerText = "Puzzle 2: What is 2+2?";
+  }
+
+  if (puzzleId === "puzzle3") {
+    document.getElementById("puzzle-message").innerText = "";
+    document.getElementById("puzzle-answer").value = "";
+    document.getElementById("puzzle-description").innerText = "Puzzle 3: What is 5-3?";
+  }
+}
+
 const API_URL = "https://script.google.com/macros/s/AKfycbwMOSlUGrDQi536bd7_iLAc7t4Z1oTT-JE8KXkHHW-JHT51IrQJdcr0y7GP7hh5j9gDPg/exec";
 
 // Save session locally
