@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>Puzzle Game</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: auto; padding: 20px; }
     .hidden { display: none; }
-    input { padding: 8px; width: 100%; margin-bottom: 10px; }
+    input, select { padding: 8px; width: 100%; margin-bottom: 10px; }
     button { padding: 10px; width: 100%; margin-bottom: 10px; }
     #leaderboard li { margin: 4px 0; }
   </style>
@@ -15,6 +15,7 @@
 
 <h2>Puzzle Game</h2>
 
+<!-- AUTH SECTION -->
 <div id="auth-section">
   <h3>Login</h3>
   <input id="login-email" placeholder="Email">
@@ -29,60 +30,48 @@
   <p id="auth-message"></p>
 </div>
 
+<!-- GAME SECTION -->
 <div id="game-section" class="hidden">
   <h3>Welcome, <span id="user-email"></span></h3>
+
+  <!-- PUZZLE SELECTOR -->
   <h4>Select Puzzle</h4>
   <select id="puzzle-select" onchange="loadPuzzle()">
-  <option value="puzzle1">Puzzle 1</option>
-  <option value="puzzle2">Puzzle 2</option>
-  <option value="puzzle3">Puzzle 3</option>
+    <option value="puzzle1">Puzzle 1</option>
+    <option value="puzzle2">Puzzle 2</option>
+    <option value="puzzle3">Puzzle 3</option>
   </select>
+
+  <!-- PUZZLE DISPLAY -->
   <p id="puzzle-description">Select a puzzle above.</p>
-<h4>Leaderboard</h4>
+  <input id="puzzle-answer" placeholder="Your answer">
+  <button onclick="submitPuzzle()">Submit Answer</button>
+  <p id="puzzle-message"></p>
 
-<select id="leaderboard-select" onchange="loadLeaderboard()">
-  <option value="puzzle1">Puzzle 1</option>
-  <option value="puzzle2">Puzzle 2</option>
-  <option value="puzzle3">Puzzle 3</option>
-</select>
+  <!-- LEADERBOARD -->
+  <h4>Leaderboard</h4>
+  <select id="leaderboard-select" onchange="loadLeaderboard()">
+    <option value="puzzle1">Puzzle 1</option>
+    <option value="puzzle2">Puzzle 2</option>
+    <option value="puzzle3">Puzzle 3</option>
+  </select>
 
-<ul id="leaderboard"></ul>
+  <ul id="leaderboard"></ul>
+
   <button onclick="logout()">Logout</button>
 </div>
 
 <script>
-function loadPuzzle() {
-  const puzzleId = document.getElementById("puzzle-select").value;
+const API_URL = "YOUR_WEB_APP_URL_HERE";
 
-  // Example puzzles — replace with your real puzzles
-  if (puzzleId === "puzzle1") {
-    document.getElementById("puzzle-message").innerText = "";
-    document.getElementById("puzzle-answer").value = "";
-    document.getElementById("puzzle-description").innerText = "Puzzle 1: What is 1+0?";
-  }
-
-  if (puzzleId === "puzzle2") {
-    document.getElementById("puzzle-message").innerText = "";
-    document.getElementById("puzzle-answer").value = "";
-    document.getElementById("puzzle-description").innerText = "Puzzle 2: What is 2+2?";
-  }
-
-  if (puzzleId === "puzzle3") {
-    document.getElementById("puzzle-message").innerText = "";
-    document.getElementById("puzzle-answer").value = "";
-    document.getElementById("puzzle-description").innerText = "Puzzle 3: What is 5-3?";
-  }
-}
-
-const API_URL = "https://script.google.com/macros/s/AKfycbwMOSlUGrDQi536bd7_iLAc7t4Z1oTT-JE8KXkHHW-JHT51IrQJdcr0y7GP7hh5j9gDPg/exec";
-
-// Save session locally
+/* -------------------------
+   SESSION MANAGEMENT
+-------------------------- */
 function saveSession(email, token) {
   localStorage.setItem("email", email);
   localStorage.setItem("token", token);
 }
 
-// Load session
 function loadSession() {
   const email = localStorage.getItem("email");
   const token = localStorage.getItem("token");
@@ -90,12 +79,15 @@ function loadSession() {
     document.getElementById("auth-section").classList.add("hidden");
     document.getElementById("game-section").classList.remove("hidden");
     document.getElementById("user-email").innerText = email;
+    loadPuzzle();
     loadLeaderboard();
   }
 }
 loadSession();
 
-// Register
+/* -------------------------
+   AUTH FUNCTIONS
+-------------------------- */
 async function registerUser() {
   const email = document.getElementById("reg-email").value;
   const password = document.getElementById("reg-password").value;
@@ -111,7 +103,6 @@ async function registerUser() {
     : data.error;
 }
 
-// Login
 async function login() {
   const email = document.getElementById("login-email").value;
   const password = document.getElementById("login-password").value;
@@ -127,12 +118,36 @@ async function login() {
     document.getElementById("auth-section").classList.add("hidden");
     document.getElementById("game-section").classList.remove("hidden");
     document.getElementById("user-email").innerText = data.email;
+    loadPuzzle();
     loadLeaderboard();
   } else {
     document.getElementById("auth-message").innerText = data.error;
   }
 }
 
+/* -------------------------
+   PUZZLE LOADING
+-------------------------- */
+function loadPuzzle() {
+  const puzzleId = document.getElementById("puzzle-select").value;
+
+  if (puzzleId === "puzzle1") {
+    document.getElementById("puzzle-description").innerText = "Puzzle 1: What is 1 + 0?";
+  }
+  if (puzzleId === "puzzle2") {
+    document.getElementById("puzzle-description").innerText = "Puzzle 2: What is 2 + 2?";
+  }
+  if (puzzleId === "puzzle3") {
+    document.getElementById("puzzle-description").innerText = "Puzzle 3: What is 5 - 3?";
+  }
+
+  document.getElementById("puzzle-answer").value = "";
+  document.getElementById("puzzle-message").innerText = "";
+}
+
+/* -------------------------
+   PUZZLE SUBMISSION
+-------------------------- */
 async function submitPuzzle() {
   const answer = document.getElementById("puzzle-answer").value;
   const email = localStorage.getItem("email");
@@ -140,7 +155,6 @@ async function submitPuzzle() {
   const puzzleId = document.getElementById("puzzle-select").value;
 
   let correctAnswer = "";
-
   if (puzzleId === "puzzle1") correctAnswer = "1";
   if (puzzleId === "puzzle2") correctAnswer = "4";
   if (puzzleId === "puzzle3") correctAnswer = "2";
@@ -171,6 +185,9 @@ async function submitPuzzle() {
   loadLeaderboard();
 }
 
+/* -------------------------
+   LEADERBOARD
+-------------------------- */
 async function loadLeaderboard() {
   const puzzleId = document.getElementById("leaderboard-select").value;
 
@@ -183,7 +200,6 @@ async function loadLeaderboard() {
   });
 
   const data = await res.json();
-
   const list = document.getElementById("leaderboard");
   list.innerHTML = "";
 
@@ -196,8 +212,9 @@ async function loadLeaderboard() {
   }
 }
 
-
-// Logout
+/* -------------------------
+   LOGOUT
+-------------------------- */
 function logout() {
   localStorage.clear();
   location.reload();
