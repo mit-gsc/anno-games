@@ -38,10 +38,15 @@
   <option value="puzzle3">Puzzle 3</option>
   </select>
   <p id="puzzle-description">Select a puzzle above.</p>
+<h4>Leaderboard</h4>
 
-  <h4>Leaderboard</h4>
-  <ul id="leaderboard"></ul>
+<select id="leaderboard-select" onchange="loadLeaderboard()">
+  <option value="puzzle1">Puzzle 1</option>
+  <option value="puzzle2">Puzzle 2</option>
+  <option value="puzzle3">Puzzle 3</option>
+</select>
 
+<ul id="leaderboard"></ul>
   <button onclick="logout()">Logout</button>
 </div>
 
@@ -166,12 +171,17 @@ async function submitPuzzle() {
   loadLeaderboard();
 }
 
-// Load leaderboard
 async function loadLeaderboard() {
+  const puzzleId = document.getElementById("leaderboard-select").value;
+
   const res = await fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify({ action: "leaderboard" })
+    body: JSON.stringify({
+      action: "leaderboard",
+      puzzleId
+    })
   });
+
   const data = await res.json();
 
   const list = document.getElementById("leaderboard");
@@ -185,6 +195,7 @@ async function loadLeaderboard() {
     });
   }
 }
+
 
 // Logout
 function logout() {
