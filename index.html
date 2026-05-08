@@ -128,13 +128,19 @@ async function login() {
   }
 }
 
-// Submit puzzle
 async function submitPuzzle() {
   const answer = document.getElementById("puzzle-answer").value;
   const email = localStorage.getItem("email");
   const token = localStorage.getItem("token");
+  const puzzleId = document.getElementById("puzzle-select").value;
 
-  if (answer !== "1") {
+  let correctAnswer = "";
+
+  if (puzzleId === "puzzle1") correctAnswer = "1";
+  if (puzzleId === "puzzle2") correctAnswer = "4";
+  if (puzzleId === "puzzle3") correctAnswer = "2";
+
+  if (answer !== correctAnswer) {
     document.getElementById("puzzle-message").innerText = "Incorrect!";
     return;
   }
@@ -148,7 +154,7 @@ async function submitPuzzle() {
       email,
       token,
       score,
-      puzzleId: "puzzle1"
+      puzzleId
     })
   });
 
