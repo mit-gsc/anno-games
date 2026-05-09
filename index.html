@@ -36,11 +36,12 @@
 
   <!-- PUZZLE SELECTOR -->
   <h4>Select Puzzle</h4>
-  <select id="puzzle-select" onchange="loadPuzzle()">
-    <option value="puzzle1">Puzzle 1</option>
-    <option value="puzzle2">Puzzle 2</option>
-    <option value="puzzle3">Puzzle 3</option>
+  <select id="puzzle-select" onchange="loadPuzzle(); loadLeaderboard();">
+  <option value="puzzle1">Puzzle 1</option>
+  <option value="puzzle2">Puzzle 2</option>
+  <option value="puzzle3">Puzzle 3</option>
   </select>
+
 
   <!-- PUZZLE DISPLAY -->
   <p id="puzzle-description">Select a puzzle above.</p>
@@ -50,11 +51,12 @@
 
   <!-- LEADERBOARD -->
   <h4>Leaderboard</h4>
-  <select id="leaderboard-select" onchange="loadLeaderboard()">
+  <select id="leaderboard-select" disabled>
     <option value="puzzle1">Puzzle 1</option>
     <option value="puzzle2">Puzzle 2</option>
     <option value="puzzle3">Puzzle 3</option>
   </select>
+  <button onclick="loadLeaderboard()">View Leaderboard</button>
 
   <ul id="leaderboard"></ul>
 
@@ -205,12 +207,12 @@ async function submitPuzzle() {
    LEADERBOARD
 -------------------------- */
 async function loadLeaderboard() {
-  const puzzleId = document.getElementById("leaderboard-select").value;
+  const puzzleId = document.getElementById("puzzle-select").value;
 
   try {
     const res = await fetch(API_URL, {
       method: "POST",
-       body: JSON.stringify({
+      body: JSON.stringify({
         action: "leaderboard",
         puzzleId
       })
@@ -227,7 +229,6 @@ async function loadLeaderboard() {
         list.appendChild(li);
       });
     }
-
   } catch (err) {
     console.error("Leaderboard error:", err);
   }
